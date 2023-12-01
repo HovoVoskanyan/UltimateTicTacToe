@@ -1,6 +1,7 @@
 import time
 import random
 from Resources.BigBoard import BigBoard
+from Resources.MinimaxAi import MinimaxAI
 
 
 class Game:
@@ -29,8 +30,41 @@ class Game:
             return random.choice(available_moves)
         else:
             return None  # No available moves
-    def get_available_moves(self):
+
+    def get_available_moves(self, last_move=None):
         moves = []
+
+        # If no move has been made yet, allow the first player to place their move anywhere
+        if not last_move or not any(
+                any(any(cell != 0 for cell in row) for row in small_board.board) for small_board in self.big_board.board
+        ):
+            for ultimate_row in range(3):
+                for ultimate_col in range(3):
+                    for small_row in range(3):
+                        for small_col in range(3):
+                            if self.big_board.board[ultimate_row][ultimate_col].board[small_row][small_col] == 0:
+                                moves.append((ultimate_row, ultimate_col, small_row, small_col))
+            return moves
+
+        # If a move has been made, find the last move's corresponding 3x3 grid
+        if last_move:
+            ultimate_row, ultimate_col, _, _ = last_move
+
+            # If the corresponding 3x3 grid is not won or full, allow the current player to place their move there
+            if (
+                    not self.big_board.board[ultimate_row][ultimate_col].check_winner()
+                    and not all(
+                all(cell != 0 for cell in row)
+                for row in self.big_board.board[ultimate_row][ultimate_col].board
+            )
+            ):
+                for small_row in range(3):
+                    for small_col in range(3):
+                        if self.big_board.board[ultimate_row][ultimate_col].board[small_row][small_col] == 0:
+                            moves.append((ultimate_row, ultimate_col, small_row, small_col))
+                return moves
+
+        # If the corresponding 3x3 grid is won or full, allow the current player to place their move anywhere on the entire board
         for ultimate_row in range(3):
             for ultimate_col in range(3):
                 for small_row in range(3):
@@ -91,33 +125,8 @@ def monte_carlo(game, player, iterations=1000):
 def minimax(game, depth, maximizing_player):
     start_time = time.time()
 
-    def evaluate(game):
-        # Your implementation of a heuristic evaluation function goes here
-        pass
-
-    def minimax_recursive(game, depth, maximizing_player):
-        if depth == 0 or game.is_game_over():
-            return evaluate(game)
-
-        if maximizing_player:
-            max_eval = float('-inf')
-            for move in game.get_available_moves():
-                cloned_game = game.clone()  # Implement a clone method in your Game class
-                cloned_game.make_move(move, "X")  # Assuming "X" is the maximizing player
-                eval = minimax_recursive(cloned_game, depth - 1, False)
-                max_eval = max(max_eval, eval)
-            return max_eval
-        else:
-            min_eval = float('inf')
-            for move in game.get_available_moves():
-                cloned_game = game.clone()
-                cloned_game.make_move(move, "O")  # Assuming "O" is the minimizing player
-                eval = minimax_recursive(cloned_game, depth - 1, True)
-                min_eval = min(min_eval, eval)
-            return min_eval
-
-    moves = game.get_available_moves()
-    best_move = max(moves, key=lambda move: minimax_recursive(game, depth, False))
+    ai = MinimaxAI(player=1)
+    best_move = ai.find_best_move(game,3)
 
     end_time = time.time()
     time_taken = end_time - start_time

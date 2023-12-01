@@ -80,7 +80,7 @@ def main():
         # Draw the ultimate board
         draw_ultimate_board(game.big_board.visualize())
 
-        best_move, time_taken = Game.monte_carlo(game, player=1, iterations=100)
+        best_move, time_taken = Game.minimax(game,depth = 2, maximizing_player=1)
 
         game.make_move(move = best_move,player=game.current_player)
 

@@ -2,6 +2,25 @@ class SmallBoard:
     def __init__(self):
         self.board = [[0 for _ in range(3)] for _ in range(3)]
 
+    def is_winner(self, player):
+        # Check rows
+        for row in self.board:
+            if all(mark == player for mark in row):
+                return True
+
+        # Check columns
+        for col in range(3):
+            if all(self.board[row][col] == player for row in range(3)):
+                return True
+
+        # Check diagonals
+        if all(self.board[i][i] == player for i in range(3)):
+            return True
+
+        if all(self.board[i][2 - i] == player for i in range(3)):
+            return True
+
+        return False
     def make_move(self, row, col, player):
         """Make a move on the small board for the specified player."""
         if self.board[row][col] == 0:

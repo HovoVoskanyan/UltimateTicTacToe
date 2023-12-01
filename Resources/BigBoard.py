@@ -3,6 +3,25 @@ class BigBoard:
     def __init__(self):
         self.board = [[SmallBoard() for _ in range(3)] for _ in range(3)]
 
+    def count_winning_lines(self, player):
+        count = 0
+        for i in range(3):
+            # Check rows
+            if any(self.board[i][j].is_winner(player) for j in range(3)):
+                count += 1
+
+            # Check columns
+            if any(self.board[j][i].is_winner(player) for j in range(3)):
+                count += 1
+
+        # Check diagonals
+        if any(self.board[i][i].is_winner(player) for i in range(3)):
+            count += 1
+
+        if any(self.board[i][2 - i].is_winner(player) for i in range(3)):
+            count += 1
+
+        return count
     def make_move(self, ultimate_row, ultimate_col, small_row, small_col, player):
         """Make a move on the big board, specifying both the ultimate and small board coordinates."""
         return self.board[ultimate_row][ultimate_col].make_move(small_row, small_col, player)
