@@ -19,18 +19,18 @@ class MinimaxAI:
         return score
 
 
-    def minimax(self, game, depth, maximizing_player,move = None):
+    def minimax(self, game, depth, maximizing_player,last_move = None):
         if depth == 0 or game.is_game_over():
             return self.evaluate(game)
 
-        available_moves = game.get_available_moves(move)
+        available_moves = game.get_available_moves(last_move)
 
         if maximizing_player:
             max_eval = float('-inf')
             for move in available_moves:
                 new_game = game.clone()
                 new_game.make_move(move, self.player)
-                eval = self.minimax(new_game, depth - 1, 2,move = move)
+                eval = self.minimax(new_game, depth - 1, 2,last_move = move)
                 max_eval = max(max_eval, eval)
             return max_eval
         else:
@@ -38,20 +38,20 @@ class MinimaxAI:
             for move in available_moves:
                 new_game = game.clone()
                 new_game.make_move(move, 3 - self.player)  # Switch player
-                eval = self.minimax(new_game, depth - 1, 1,move = move)
+                eval = self.minimax(new_game, depth - 1, 1,last_move = move)
                 min_eval = min(min_eval, eval)
             return min_eval
 
 
-    def find_best_move(self, game, depth=3):
-        available_moves = game.get_available_moves()
+    def find_best_move(self, game, depth=3,last_move =None):
+        available_moves = game.get_available_moves(last_move)
         best_move = None
         best_eval = float('-inf')
 
         for move in available_moves:
             new_game = game.clone()
             new_game.make_move(move, self.player)
-            eval = self.minimax(new_game, depth - 1, self.player,move=move)
+            eval = self.minimax(new_game, depth - 1, self.player, last_move= move )
             print(best_move)
             if eval > best_eval:
                 best_eval = eval

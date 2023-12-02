@@ -57,22 +57,30 @@ class BigBoard:
     def check_winner(self):
         # Check rows
         for row in self.board:
-            if all(small_board.check_winner() == row[0].check_winner() and row[0].check_winner() is not None for
-                   small_board in row):
-                return row[0].check_winner()
+            first_cell_winner = row[0].check_winner()
+            if all(small_board.check_winner() == first_cell_winner and first_cell_winner != 0 for small_board in
+                   row):
+                if first_cell_winner != 0 or first_cell_winner != None:
+                    return first_cell_winner
 
         # Check columns
         for col in range(3):
-            if all(self.board[row][col].check_winner() == self.board[0][col].check_winner() and self.board[0][
-                col].check_winner() is not None for row in range(3)):
-                return self.board[0][col].check_winner()
+            first_cell_winner = self.board[0][col].check_winner()
+            if all(self.board[row][col].check_winner() == first_cell_winner and first_cell_winner!=0 for row in
+                   range(3)):
+                if first_cell_winner != 0 or first_cell_winner != None:
+                    return first_cell_winner
 
         # Check diagonals
-        if all(self.board[i][i].check_winner() == self.board[0][0].check_winner() and self.board[0][
-            0].check_winner() is not None for i in range(3)) or \
-                all(self.board[i][2 - i].check_winner() == self.board[0][2].check_winner() and self.board[0][
-                    2].check_winner() is not None for i in range(3)):
-            return self.board[1][1].check_winner()
+        diagonal1_winner = self.board[0][0].check_winner()
+        diagonal2_winner = self.board[0][2].check_winner()
+
+        if all(self.board[i][i].check_winner() == diagonal1_winner and diagonal1_winner!=0 for i in
+               range(3)) or \
+                all(self.board[i][2 - i].check_winner() == diagonal2_winner and diagonal2_winner!=-0 for i in
+                    range(3)):
+            if diagonal1_winner != 0 or diagonal1_winner != None:
+                return diagonal1_winner
 
         # No winner
         return None

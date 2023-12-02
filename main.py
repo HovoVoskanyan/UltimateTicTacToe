@@ -1,7 +1,8 @@
+import time
+
 import pygame
 from Resources import Game
 pygame.init()
-
 # Constants
 WIDTH, HEIGHT = 600, 600
 CELL_SIZE = WIDTH // 9
@@ -21,6 +22,7 @@ pygame.display.set_caption("Ultimate Tic-Tac-Toe")
 
 # Function to draw the game grid
 def draw_grid():
+    screen.fill(WHITE)
     for i in range(1, 3):
         pygame.draw.line(screen, BLACK, (CELL_SIZE * i * 3, 0), (CELL_SIZE * i * 3, HEIGHT), LINE_WIDTH)
         pygame.draw.line(screen, BLACK, (0, CELL_SIZE * i * 3), (WIDTH, CELL_SIZE * i * 3), LINE_WIDTH)
@@ -54,52 +56,76 @@ def draw_ultimate_board(ultimate_board):
                 symbol = 'O'
             draw_symbol(i, j, symbol)
 
-    # Draw borders for the entire ultimate board
 
-# Main game loop
 def main():
 
     running = True
-    game = Game.Game()
 
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+    last_move = None
+    winners = list()
+    move_times = list()
+    for i in range(250):
 
-        # Clear the screen
-        screen.fill(WHITE)
+        game = Game.Game()
 
-        # Example ultimate board
-        if(game.is_game_over()):
-            winner = game.big_board.check_winner()
-            if(winner != 0):
-                print(winner,"Has Won!")
-                break
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
 
-        # Draw the ultimate board
-        draw_ultimate_board(game.big_board.visualize())
 
-        best_move, time_taken = Game.minimax(game,depth = 2, maximizing_player=1)
+            #visual = game.big_board.visualize()
+            #draw_ultimate_board(visual)
+            if(game.is_game_over()):
+                winner = game.big_board.check_winner()
+                #draw_ultimate_board(visual)
+                if(winner != 0 or winner != None):
+                    winners.append(winner)
+                    if(winner ==1):
+                        winner = "X"
+                    elif(winner == 2):
+                        winner = "O"
+                    else:
+                        winner = "Friendship"
+                    print(winner,"Has Won!")
+                    time.sleep(5)
+                    break
 
-        game.make_move(move = best_move,player=game.current_player)
 
-        randomMove = game.random_move()
 
-        if(randomMove is not None):
-            game.make_move(move = randomMove,player=game.current_player)
 
-        # Print the result
-        print("Best Move:", best_move)
-        print("Time Taken:", time_taken, "seconds")
-        # Update the display
-        pygame.display.flip()
+            best_move, time_taken = Game.minimax(game,depth = 4, maximizing_player=1,last_move = last_move)
 
-        # Control the frame rate
-        pygame.time.Clock().tick(FPS)
+            #best_move, time_taken = Game.monte_carlo(game,player=1, iterations=100, last_move=last_move)
+            #best_move, time_taken = Game.find_best_move_alpha_beta(game, depth=3, last_move=last_move)
 
-        screen.fill(WHITE)
+            move_times.append(time_taken)
 
+            game.make_move(move = best_move,player=game.current_player)
+
+            last_move = best_move
+
+            randomMove = game.random_move(last_move)
+
+            if(randomMove is not None):
+                game.make_move(move = randomMove,player=game.current_player)
+
+            last_move = randomMove
+            # Print the result
+            print("Best Move:", best_move)
+            print("Time Taken:", time_taken, "seconds")
+            print("*")
+            print("Random Move",randomMove)
+            # Update the display
+            pygame.display.flip()
+
+            # Control the frame rate
+            pygame.time.Clock().tick(FPS)
+
+            screen.fill(WHITE)
+
+    print(winners)
+    print(sum(move_times)/len(move_times),"MaxTime",max(move_times),min(move_times))
 
 if __name__ == "__main__":
     main()

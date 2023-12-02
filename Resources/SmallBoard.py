@@ -30,10 +30,19 @@ class SmallBoard:
             return False  # Cell already occupied
 
     def check_winner(self):
-        # Check rows
+        # Check row
         for row in self.board:
-            if all(cell == row[0] and cell != 0 for cell in row):
+            is_winner_row = True
+            for cell in row:
+                if(row[0] != cell):
+                    is_winner_row = False
+            if(is_winner_row):
                 return row[0]
+
+
+        # for row in self.board:
+        #     if all(cell == row[0] and cell != 0 for cell in row):
+        #         return row[0]
 
         # Check columns
         for col in range(3):
@@ -45,5 +54,4 @@ class SmallBoard:
                 all(self.board[i][2 - i] == self.board[0][2] and self.board[i][2 - i] != 0 for i in range(3)):
             return self.board[1][1]
 
-        # No winner
-        return None
+        return 0
