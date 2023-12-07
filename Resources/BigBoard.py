@@ -7,35 +7,24 @@ class BigBoard:
         count = 0
         for i in range(3):
             # Check rows
-            if any(self.board[i][j].is_winner(player) for j in range(3)):
-                count += 1
+            for j in range(3):
+                if(self.board[i][j].is_winner(player)):
+                    count += 1
 
-            # Check columns
-            if any(self.board[j][i].is_winner(player) for j in range(3)):
-                count += 1
+                if (self.board[j][i].is_winner(player)):
+                    count += 1
 
         # Check diagonals
-        if any(self.board[i][i].is_winner(player) for i in range(3)):
+        if self.board[i][i].is_winner(player):
             count += 1
 
-        if any(self.board[i][2 - i].is_winner(player) for i in range(3)):
+        if self.board[i][2 - i].is_winner(player):
             count += 1
 
         return count
     def make_move(self, ultimate_row, ultimate_col, small_row, small_col, player):
         """Make a move on the big board, specifying both the ultimate and small board coordinates."""
         return self.board[ultimate_row][ultimate_col].make_move(small_row, small_col, player)
-
-    def get_available_moves(self):
-        moves = []
-        for ultimate_row in range(3):
-            for ultimate_col in range(3):
-                small_board = self.board[ultimate_row][ultimate_col]
-                for small_row in range(3):
-                    for small_col in range(3):
-                        if small_board.board[small_row][small_col] == 0:
-                            moves.append((ultimate_row, ultimate_col, small_row, small_col))
-        return moves
 
     def visualize(self):
         """Visualize the big board."""

@@ -22,13 +22,11 @@ class SmallBoard:
 
         return False
     def make_move(self, row, col, player):
-        """Make a move on the small board for the specified player."""
         if self.board[row][col] == 0:
             self.board[row][col] = player
-            return True  # Move successful
+            return True
         else:
-            return False  # Cell already occupied
-
+            return False
     def check_winner(self):
         # Check row
         for row in self.board:
@@ -40,9 +38,6 @@ class SmallBoard:
                 return row[0]
 
 
-        # for row in self.board:
-        #     if all(cell == row[0] and cell != 0 for cell in row):
-        #         return row[0]
 
         # Check columns
         for col in range(3):

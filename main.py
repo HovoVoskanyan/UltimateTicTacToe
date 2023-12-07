@@ -59,28 +59,41 @@ def draw_ultimate_board(ultimate_board):
 
 def main():
 
+    is_settled = True
+    userinput = 0
+    while(is_settled):
+        print("Please Select a Number\n 1- for Initializing MinMax algorithm agains Random Agent \n 2- for initializing Alpha Beta Pruning Algorithm Against Random Agent \n 3- for initializing Monte Carlo Algorithm against Random Agent")
+        userinput = int(input("Enter Integer Number!\n"))
+        if(userinput == 1 or userinput ==2 or userinput == 3):
+            is_settled = False
+
     running = True
 
     last_move = None
     winners = list()
     move_times = list()
     for i in range(250):
-
         game = Game.Game()
 
         while running:
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
 
 
-            #visual = game.big_board.visualize()
-            #draw_ultimate_board(visual)
+            visual = game.big_board.visualize()
+            draw_ultimate_board(visual)
+
             if(game.is_game_over()):
+
                 winner = game.big_board.check_winner()
-                #draw_ultimate_board(visual)
+                winners.append(winner)
+
+                visual = game.big_board.visualize()
+                draw_ultimate_board(visual)
+
                 if(winner != 0 or winner != None):
-                    winners.append(winner)
                     if(winner ==1):
                         winner = "X"
                     elif(winner == 2):
@@ -88,44 +101,68 @@ def main():
                     else:
                         winner = "Friendship"
                     print(winner,"Has Won!")
+                    pygame.display.flip()
+
+                    pygame.time.Clock().tick(FPS)
                     time.sleep(5)
+
+                    screen.fill(WHITE)
                     break
 
+            best_move,time_taken =None, None
+            if(userinput == 1):
+                best_move, time_taken = Game.minimax(game, depth=4, maximizing_player=1, last_move=last_move)
 
+            elif(userinput ==2):
+                best_move,time_taken = Game.alpha_beta(game,4,1,last_move)
 
-
-            best_move, time_taken = Game.minimax(game,depth = 4, maximizing_player=1,last_move = last_move)
-
-            #best_move, time_taken = Game.monte_carlo(game,player=1, iterations=100, last_move=last_move)
-            #best_move, time_taken = Game.find_best_move_alpha_beta(game, depth=3, last_move=last_move)
+            else:
+                best_move, time_taken = Game.monte_carlo(game,player=1, iterations=1000, last_move=last_move)
 
             move_times.append(time_taken)
-
             game.make_move(move = best_move,player=game.current_player)
+
 
             last_move = best_move
 
-            randomMove = game.random_move(last_move)
+            if (game.is_game_over()):
+
+                visual = game.big_board.visualize()
+                winner = game.big_board.check_winner()
+                draw_ultimate_board(visual)
+                winners.append(winner)
+
+                if (winner != 0 or winner != None):
+                    if (winner == 1):
+                        winner = "X"
+                    elif (winner == 2):
+                        winner = "O"
+                    else:
+                        winner = "Friendship"
+                    print(winner, "Has Won!")
+                    pygame.display.flip()
+
+                    pygame.time.Clock().tick(FPS)
+                    time.sleep(5)
+
+                    screen.fill(WHITE)
+                    break
+
+
+            randomMove = game.random_move(last_move=last_move)
 
             if(randomMove is not None):
                 game.make_move(move = randomMove,player=game.current_player)
 
             last_move = randomMove
-            # Print the result
-            print("Best Move:", best_move)
-            print("Time Taken:", time_taken, "seconds")
-            print("*")
-            print("Random Move",randomMove)
-            # Update the display
             pygame.display.flip()
 
-            # Control the frame rate
             pygame.time.Clock().tick(FPS)
 
             screen.fill(WHITE)
 
-    print(winners)
-    print(sum(move_times)/len(move_times),"MaxTime",max(move_times),min(move_times))
+        print(winners)
+        print(sum(move_times)/len(move_times),"MaxTime",max(move_times),min(move_times))
 
 if __name__ == "__main__":
     main()

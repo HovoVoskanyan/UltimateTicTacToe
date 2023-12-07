@@ -2,6 +2,7 @@ import time
 import random
 from Resources.BigBoard import BigBoard
 from Resources.MinimaxAi import MinimaxAI
+from  Resources.AlphaBetaAi import AlphaBetaAi
 
 
 class Game:
@@ -16,8 +17,8 @@ class Game:
             self.current_player =1
 
     def make_move(self, move, player):
-        if(self.current_player ==2):
-            a =5
+        if(move is None):
+            return
         self.big_board.make_move(move[0], move[1], move[2], move[3], player)
         self.switch_player()
 
@@ -64,6 +65,10 @@ class Game:
         # If the corresponding 3x3 grid is won or full, allow the current player to place their move anywhere on the entire board
         for ultimate_row in range(3):
             for ultimate_col in range(3):
+                small_board = self.big_board.board[ultimate_row][ultimate_col]
+                is_won = small_board.is_winner(1) | small_board.is_winner(2)
+                if is_won:
+                    continue
                 for small_row in range(3):
                     for small_col in range(3):
                         if self.big_board.board[ultimate_row][ultimate_col].board[small_row][small_col] == 0:
@@ -125,7 +130,7 @@ def monte_carlo(game, player, iterations=1000,last_move = None):
 def minimax(game, depth, maximizing_player,last_move):
     start_time = time.time()
 
-    ai = MinimaxAI(player=1)
+    ai = MinimaxAI(player=maximizing_player,maximizer=1,minimizer=2)
     best_move = ai.find_best_move(game,3,last_move)
 
     end_time = time.time()
@@ -144,63 +149,19 @@ def evaluate(game):
         return -100  # Player 2 (O) wins
 
     player1_lines = game.big_board.count_winning_lines(1)
+
     player2_lines = game.big_board.count_winning_lines(2)
 
-    player1_small_boards = sum(
-        1 for row in game.big_board.board for small_board in row if small_board.check_winner() == 1
-    )
-    player2_small_boards = sum(
-        1 for row in game.big_board.board for small_board in row if small_board.check_winner() == 2
-    )
-
-    # Add more factors as needed
-    score = (player1_lines + player1_small_boards) - (player2_lines + player2_small_boards)
+    score = player1_lines - player2_lines
 
     return score
 
-def alpha_beta_recursive(game, depth, alpha, beta, maximizing_player,last_move):
-    if depth == 0 or game.is_game_over():
-        return evaluate(game)
 
-    moves = game.get_available_moves(last_move)
-
-    if maximizing_player==1:
-        max_eval = float('-inf')
-        for move in moves:
-            cloned_game = game.clone()
-            cloned_game.make_move(move, "X")  # Assuming "X" is the maximizing player
-            eval = alpha_beta_recursive(cloned_game, depth - 1, alpha, beta, 2,move)
-            max_eval = max(max_eval, eval)
-            alpha = max(alpha, eval)
-            if beta <= alpha:
-                break
-        return max_eval
-    else:
-        min_eval = float('inf')
-        for move in moves:
-            cloned_game = game.clone()
-            cloned_game.make_move(move, "O")  # Assuming "O" is the minimizing player
-            eval = alpha_beta_recursive(cloned_game, depth - 1, alpha, beta, 1,move)
-            min_eval = min(min_eval, eval)
-            beta = min(beta, eval)
-            if beta <= alpha:
-                break
-        return min_eval
-
-
-
-def find_best_move_alpha_beta(game, depth=3, last_move= None):
+def alpha_beta(game, depth, maximizing_player,last_move):
     start_time = time.time()
-    alpha = float('-inf')
-    beta = float('inf')
-    maximizing_player = 1  # Assuming player 1 is the maximizing player
 
-    moves = game.get_available_moves(last_move)
-
-    best_move = max(
-        moves,
-        key=lambda move: alpha_beta_recursive(game, depth, alpha, beta, maximizing_player, last_move=move)
-    )
+    ai = AlphaBetaAi(player=maximizing_player,maximizer =1,minimizer=2)
+    best_move = ai.find_best_move_alpha_beta(game,3,last_move)
 
     end_time = time.time()
     time_taken = end_time - start_time
